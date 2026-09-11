@@ -18,12 +18,16 @@ dependencies = [
 ]
 keywords = ["chromosome ideogram", "karyoplot", "karyotype"]
 
+[project.optional-dependencies]
+dev = ["ipython", "ipykernel", "pytest"]
+
 [tool.hatch.version]
 path = "src/karpyoplot/__init__.py"
 license = "MIT"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/karpyoplot"]
+include = ["src/karpyoplot/data/*"]
 
 [project.urls]
 Homepage = "https://github.com/zoebjamal/karpyoplot"

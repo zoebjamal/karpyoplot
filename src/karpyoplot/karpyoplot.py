@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import pandas as pd
+from importlib.resources import files
 
 # %% ----
 # CLASSES
@@ -91,6 +93,16 @@ class Ideogram:
 # ---------
 
 
+def load_cytobands(genome="hg38"):
+    data_path = files("karpyoplot.data") / f"{genome}_cytobands.bed"
+    return pd.read_csv(
+        data_path,
+        sep="\t",
+        header=None,
+        names=["chrom", "start", "stop", "band", "stain"],
+    )
+
+
 def _valid_chrom_groups(df, layout, chrom_col="chr"):
     """
     Helper function that iterates over (chrom, subdf) groups, skipping any
@@ -180,7 +192,7 @@ def plot_ucsc_track(
     df,
     position,
     index=0,
-    color='black',
+    color="black",
     color_col=None,
     linewidth=0.2,
     label=None,
@@ -195,7 +207,7 @@ def plot_ucsc_track(
     df = df.copy()
 
     if color_col:
-        temp_rgb_df = df[color_col].str.split(',', expand=True).astype(int)
+        temp_rgb_df = df[color_col].str.split(",", expand=True).astype(int)
         df["hex_color"] = temp_rgb_df.apply(lambda r: _rgb_to_hex(*r), axis=1)
 
     # print(df.head())

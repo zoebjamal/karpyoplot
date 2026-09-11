@@ -103,6 +103,48 @@ def load_cytobands(genome="hg38"):
     )
 
 
+def add_color_to_cyto(
+    df,
+    color_map={
+        "gneg": "#ffffff",
+        "gpos25": "#c6c6c6",
+        "gpos50": "#999999",
+        "gpos75": "#666666",
+        "gpos100": "#000000",
+        "acen": "#cc6666",
+        "gvar": "#cccccc",
+        "stalk": "#e6e6e6",
+    },
+    map_col="stain",
+    color_col="color",
+):
+    """
+    Function that adds a color column to a cytoband bed file, based on the values in a
+    given column (`stain` by default). User can also supply a dictionary to use to map
+    color values (conventional staining colors by default).
+    """
+
+    df = df.copy()
+
+    df[color_col] = df[map_col].map(color_map)
+
+    return df
+
+
+def add_color_to_bed(df, color="#4c72b0", color_col="color"):
+    """
+    Function that adds a color column value to each row in the cytoband bed file. By
+    default this only adds a single color. If you want to add colors based on mapping
+    values to another column, use add_color_to_cyto()
+    """
+
+    df = df.copy()
+
+    df[color_col] = color
+
+    return df
+
+
 def _valid_chrom_groups(df, layout, chrom_col="chr"):
     """
     Helper function that iterates over (chrom, subdf) groups, skipping any
@@ -114,20 +156,33 @@ def _valid_chrom_groups(df, layout, chrom_col="chr"):
             yield chrom, subdf
 
 
-def plot_ideogram(ax, cyto, layout, chrom_col="chr"):
+def plot_ideogram(
+    ax,
+    cyto,
+    layout,
+    chrom_col="chr",
+    color_col="color",
+    color="#4c72b0",
+    edge_color="black",
+):
     """
-    Function that prepares the fig
+    Function that plots the ideogram
     """
 
     for chrom, subdf in _valid_chrom_groups(cyto, layout, chrom_col=chrom_col):
         subdf = subdf.sort_values(by="start")
         xranges = list(zip(subdf["start"], subdf["stop"] - subdf["start"]))
-        colors = subdf["color"].tolist()
+
+        if color_col is None:
+            colors = color
+        else:
+            colors = subdf[color_col].tolist()
+
         ax.broken_barh(
             xranges,
             layout.chrom_yrange(chrom),
             facecolors=colors,
-            edgecolors="black",
+            edgecolors=edge_color,
             linewidths=0.2,
         )
 
